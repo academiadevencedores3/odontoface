@@ -1,0 +1,3 @@
+Credentials for Mock Admin:
+Email: admin@lumina.com
+Password: admin
