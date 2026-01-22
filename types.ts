@@ -4,6 +4,7 @@ export interface Service {
   description?: string;
   price: number;
   duration_min: number;
+  image_url?: string; // Added for service images
 }
 
 export interface Professional {
@@ -28,4 +29,8 @@ export interface Appointment {
   // Joins
   services?: Service;
   professionals?: Professional;
+}
+
+export interface SiteConfig {
+  hero_image_url: string;
 }

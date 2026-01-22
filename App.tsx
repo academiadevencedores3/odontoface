@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { BookingModal } from './components/BookingModal';
 import { Button } from './components/ui/Button';
 import { AdminPage } from './pages/Admin';
 import { Menu, MapPin, Phone } from 'lucide-react';
+import { getSiteConfig, getServices, getProfessionals } from './services/supabase';
+import { Service, Professional } from './types';
 
 // Define Social Icons locally to ensure availability (brand icons removed in recent Lucide versions)
 const Instagram = ({ className = "" }: { className?: string }) => (
@@ -29,6 +31,20 @@ const WhatsApp = ({ className = "" }: { className?: string }) => (
 const LandingPage: React.FC = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Data State
+  const [services, setServices] = useState<Service[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=2068');
+
+  useEffect(() => {
+    // Fetch dynamic data
+    getServices().then(setServices);
+    getProfessionals().then(setProfessionals);
+    getSiteConfig().then(config => {
+      if (config.hero_image_url) setHeroImage(config.hero_image_url);
+    });
+  }, []);
 
   // Helper to scroll to section avoiding HashRouter conflict
   const scrollToSection = (id: string) => {
@@ -81,9 +97,9 @@ const LandingPage: React.FC = () => {
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=2068" 
+            src={heroImage} 
             alt="Luxury Dental Clinic" 
-            className="w-full h-full object-cover brightness-[0.6]"
+            className="w-full h-full object-cover brightness-[0.6] transition-opacity duration-700"
           />
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl animate-fadeIn">
@@ -108,22 +124,18 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              { title: 'Harmonização Facial', desc: 'Realce sua beleza natural com procedimentos minimamente invasivos.', img: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=800' },
-              { title: 'Lentes de Contato', desc: 'Transforme seu sorriso com facetas de porcelana ultra-finas.', img: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=800' },
-              { title: 'Implantes Premium', desc: 'Reabilitação oral completa com tecnologia suíça de implantes.', img: 'https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&q=80&w=800' }
-            ].map((item, idx) => (
-              <div key={idx} className="group cursor-pointer">
+            {services.map((item) => (
+              <div key={item.id} className="group cursor-pointer">
                 <div className="overflow-hidden mb-6 h-80 relative">
                   <img 
-                    src={item.img} 
+                    src={item.image_url || 'https://via.placeholder.com/800x600?text=Sem+Imagem'} 
                     alt={item.title} 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                 </div>
                 <h3 className="font-serif text-2xl mb-2 text-navy-900 group-hover:text-gold-600 transition-colors">{item.title}</h3>
-                <p className="text-gray-500 font-light leading-relaxed">{item.desc}</p>
+                <p className="text-gray-500 font-light leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
@@ -159,7 +171,7 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Specialists Section (Added) */}
+      {/* Specialists Section */}
       <section id="equipe" className="py-24 bg-white scroll-mt-20">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -171,33 +183,17 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              { 
-                name: 'Dr. Roberto Silva', 
-                role: 'Diretor Clínico & Implantodontia', 
-                img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=800' 
-              },
-              { 
-                name: 'Dra. Ana Costa', 
-                role: 'Harmonização Orofacial', 
-                img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=800' 
-              },
-              { 
-                name: 'Dr. Lucas Mendes', 
-                role: 'Ortodontia Digital', 
-                img: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800' 
-              }
-            ].map((pro, idx) => (
-              <div key={idx} className="text-center group">
+            {professionals.map((pro) => (
+              <div key={pro.id} className="text-center group">
                 <div className="relative mb-6 mx-auto w-64 h-64 overflow-hidden rounded-full border-4 border-gray-100 group-hover:border-gold-200 transition-colors">
                   <img 
-                    src={pro.img} 
+                    src={pro.photo_url || "https://via.placeholder.com/400"} 
                     alt={pro.name} 
                     className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-110" 
                   />
                 </div>
                 <h3 className="font-serif text-2xl text-navy-900 mb-1">{pro.name}</h3>
-                <p className="text-sm font-bold text-gold-600 tracking-widest uppercase mb-4">{pro.role}</p>
+                <p className="text-sm font-bold text-gold-600 tracking-widest uppercase mb-4">{pro.specialty}</p>
               </div>
             ))}
           </div>
@@ -217,17 +213,17 @@ const LandingPage: React.FC = () => {
           <div>
             <h4 className="font-bold mb-6 text-sm tracking-widest text-gold-500">CONTATO</h4>
             <div className="space-y-4 text-gray-300 text-sm">
-              <p className="flex items-center gap-3"><Phone size={16} /> (82) 99309-1738</p>
-              <p className="flex items-center gap-3"><MapPin size={16} /> Av. Odonto, 369 - AL</p>
+              <p className="flex items-center gap-3"><Phone size={16} /> (11) 99999-9999</p>
+              <p className="flex items-center gap-3"><MapPin size={16} /> Av. Paulista, 1000 - SP</p>
             </div>
           </div>
           
           <div>
             <h4 className="font-bold mb-6 text-sm tracking-widest text-gold-500">SOCIAL</h4>
             <div className="flex gap-4">
-              <a href="https://wa.me/5582993091738" className="hover:text-gold-500 transition-colors"><Instagram /></a>
-              <a href="https://wa.me/5582993091738" className="hover:text-gold-500 transition-colors"><Facebook /></a>
-              <a href="https://wa.me/5582993091738" className="hover:text-gold-500 transition-colors"><WhatsApp /></a>
+              <a href="#" className="hover:text-gold-500 transition-colors"><Instagram /></a>
+              <a href="#" className="hover:text-gold-500 transition-colors"><Facebook /></a>
+              <a href="#" className="hover:text-gold-500 transition-colors"><WhatsApp /></a>
             </div>
           </div>
           
