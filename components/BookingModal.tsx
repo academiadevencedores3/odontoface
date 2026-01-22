@@ -275,7 +275,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-gold-500 focus:border-gold-500 outline-none"
                         value={formData.name}
                         onChange={e => setFormData({...formData, name: e.target.value})}
-                        placeholder="Ex: Renato Evangelista"
+                        placeholder="Ex: Maria Silva"
                       />
                     </div>
                   </div>
@@ -288,7 +288,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                       className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-gold-500 focus:border-gold-500 outline-none"
                       value={formData.phone}
                       onChange={e => setFormData({...formData, phone: e.target.value})}
-                      placeholder="(82) 99309-1738"
+                      placeholder="(11) 99999-9999"
                     />
                   </div>
 
